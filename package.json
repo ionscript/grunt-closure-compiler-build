@@ -1,0 +1,47 @@
+{
+  "name": "grunt-closure-compiler-build",
+  "description": "Download, unzip Closure Compiler Build for \"grunt-closure-compiler\"",
+  "version": "0.0.3",
+  "homepage": "https://github.com/ionscript/grunt-closure-compiler-build",
+  "author": {
+    "name": "Sergey Shportko",
+    "email": "ionscript.inc@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ionscript/grunt-closure-compiler-build.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ionscript/grunt-closure-compiler-build/issues"
+  },
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/ionscript/grunt-closure-compiler-build/blob/master/LICENSE-MIT"
+    }
+  ],
+  "dependencies": {
+    "node-fs": "^0.1.7",
+    "request": "^2.51.0",
+    "unzip": "^0.1.11"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-closure-compiler": "0.0.21"
+  },
+  "keywords": [
+    "Closure Compiler",
+    "Closure Compiler Build",
+    "Minification",
+    "compiler.jar",
+    "gruntplugin"
+  ],
+  "files": [
+    "tasks",
+    "LICENSE-MIT",
+    "README.md"
+  ]
+}
