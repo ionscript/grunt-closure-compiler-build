@@ -21,7 +21,7 @@ grunt.initConfig({
     build: {
       url: 'http://dl.google.com/closure-compiler/compiler-latest.zip',
       dir: 'node_modules/grunt-closure-compiler-build/build/',
-      filename: 'compiler.jar'
+      filename: 'compiler.zip'
     }
   }
 });
