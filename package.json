@@ -1,7 +1,7 @@
 {
   "name": "grunt-closure-compiler-build",
   "description": "Download, unzip Closure Compiler Build for \"grunt-closure-compiler\"",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homepage": "https://github.com/ionscript/grunt-closure-compiler-build",
   "author": {
     "name": "Sergey Shportko",
