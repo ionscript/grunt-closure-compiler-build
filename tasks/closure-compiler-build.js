@@ -1,8 +1,8 @@
 module.exports = function (grunt) {
 	'use strict';
 
-	var fs = require('node-fs'),
-		request = require('request'),
+	var http = require('http'),
+		fs = require('node-fs'),
 		unzip = require('unzip');
 
 	grunt.registerMultiTask('closure-compiler-build', 'Closure Cobpiler Build', function () {
@@ -15,20 +15,36 @@ module.exports = function (grunt) {
 			if (err && err.code != 'EEXIST') {
 				grunt.warn('ERROR[' + err.errno + ']: ' + err.message);
 				return false;
-			} else {
-				grunt.log.debug('Created Dir: "' + build.dir + '"');
 			}
 		});
 
 		file = fs.createWriteStream(path);
-		request(build.url).pipe(unzip.Parse().pipe(file));
+
+		http.get(build.url, function(response){
+			response.pipe(file);
+		});
 
 		file.on('finish', function () {
 			file.close(function () {
 				if (file.bytesWritten > 0) {
-					grunt.log.debug('Compiler Build Installed: "' + path + '" : ' + file.bytesWritten + ' bytes');
+					grunt.log.writeln('Compiler downloaded: "' + path + '" : ' + file.bytesWritten + ' bytes');
+
+					fs.createReadStream(path)
+						.pipe(unzip.Parse())
+						.on('entry', function (entry) {
+							entry.pipe(fs.createWriteStream(build.dir + entry.path)
+									.on('error', function () {
+										grunt.warn('UNZIP ERROR: ' + build.dir + entry.path + ' ... FAIL');
+										return false;
+									})
+									.on('finish', function () {
+										grunt.log.writeln('UNZIP ENTRY: "' + build.dir + entry.path + '... OK');
+									})
+							);
+
+						});
 				} else {
-					grunt.warn('ERROR: FILESIZE 0 bytes.');
+					grunt.warn('DOWNLOAD ERROR: FILESIZE 0 bytes.');
 					return false;
 				}
 			});
@@ -41,5 +57,3 @@ module.exports = function (grunt) {
 		});
 	});
 };
-
-
