@@ -5,7 +5,7 @@ module.exports = function (grunt) {
 		fs = require('node-fs'),
 		unzip = require('unzip');
 
-	grunt.registerMultiTask('closure-compiler-build', 'Closure Cobpiler Build', function () {
+	grunt.registerMultiTask('closure-compiler-build', 'Closure Compiler Build', function () {
 		var build = this.data,
 			path = build.dir + build.filename,
 			done = this.async(),
