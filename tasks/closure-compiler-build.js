@@ -11,7 +11,7 @@ module.exports = function (grunt) {
 			done = this.async(),
 			file;
 
-		fs.mkdirSync(build.dir, 777, true, function (err) {
+		fs.mkdirSync(build.dir, '0777', true, function (err) {
 			if (err && err.code != 'EEXIST') {
 				grunt.warn('ERROR[' + err.errno + ']: ' + err.message);
 				return false;
