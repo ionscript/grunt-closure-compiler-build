@@ -1,59 +1,64 @@
 module.exports = function (grunt) {
-	'use strict';
+    'use strict';
 
-	var http = require('http'),
-		fs = require('node-fs'),
-		unzip = require('unzip');
+    var http = require('http'),
+        fs = require('node-fs'),
+        unzip = require('unzip');
 
-	grunt.registerMultiTask('closure-compiler-build', 'Closure Compiler Build', function () {
-		var build = this.data,
-			path = build.dir + build.filename,
-			done = this.async(),
-			file;
+    grunt.registerMultiTask('closure-compiler-build', 'Closure Cobpiler Build', function () {
+        var config = this.data,
+            src = config.dir + config.filename + '.zip',
+            dist = config.dir + config.filename + '.jar',
+            done = this.async(),
+            file;
 
-		fs.mkdirSync(build.dir, '0777', true, function (err) {
-			if (err && err.code != 'EEXIST') {
-				grunt.warn('ERROR[' + err.errno + ']: ' + err.message);
-				return false;
-			}
-		});
+        if (!fs.existsSync(config.dir)) {
+            fs.mkdir(config.dir, function (err) {
+                if (err) {
+                    grunt.warn('[' + err.errno + ']: ' + err.message);
+                }
+            });
+        }
 
-		file = fs.createWriteStream(path);
+        if (!fs.existsSync(dist) || config.update) {
 
-		http.get(build.url, function(response){
-			response.pipe(file);
-		});
+            file = fs.createWriteStream(src);
 
-		file.on('finish', function () {
-			file.close(function () {
-				if (file.bytesWritten > 0) {
-					grunt.log.writeln('Compiler downloaded: "' + path + '" : ' + file.bytesWritten + ' bytes');
+            http.get(config.url, function (response) {
+                response.pipe(file);
+            });
 
-					fs.createReadStream(path)
-						.pipe(unzip.Parse())
-						.on('entry', function (entry) {
-							entry.pipe(fs.createWriteStream(build.dir + entry.path)
-									.on('error', function () {
-										grunt.warn('UNZIP ERROR: ' + build.dir + entry.path + ' ... FAIL');
-										return false;
-									})
-									.on('finish', function () {
-										grunt.log.writeln('UNZIP ENTRY: "' + build.dir + entry.path + '... OK');
-									})
-							);
+            file.on('finish', function () {
+                file.close(function () {
+                    if (file.bytesWritten > 0) {
+                        grunt.log.writeln('Download: ' + config.url + ' (' + file.bytesWritten + ' B)');
+                        fs.createReadStream(src)
+                            .pipe(unzip.Parse())
+                            .on('entry', function (entry) {
+                                if (entry.path.indexOf('.jar') > 0) {
+                                    entry.pipe(fs.createWriteStream(dist)
+                                        .on('error', function () {
+                                            grunt.warn('Extract: ' + entry.path);
+                                        })
+                                        .on('finish', function () {
+                                            grunt.log.writeln('Extract: ' + entry.path);
+                                            grunt.log.writeln('Save: ' + dist);
+                                        })
+                                    );
+                                }
+                            });
+                    } else {
+                        grunt.warn('Download: ' + config.url + ' (0 B)');
+                    }
+                    fs.unlink(src);
+                });
+            });
 
-						});
-				} else {
-					grunt.warn('DOWNLOAD ERROR: FILESIZE 0 bytes.');
-					return false;
-				}
-			});
-		});
-		file.on('error', function (err) {
-			fs.unlink(path, function () {
-				grunt.warn('ERROR[' + err.errno + ']: ' + err.message);
-				return false;
-			});
-		});
-	});
+            file.on('error', function (err) {
+                fs.unlink(src, function () {
+                    grunt.warn('[' + err.errno + ']: ' + err.message);
+                });
+            });
+        }
+    });
 };
